@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('created_by');
             $table->unsignedBigInteger('m_project_tabs_id');
             $table->unsignedInteger('m_status_tabs_id');
-            $table->string('customer_nama');
+            $table->string('customer_nama')->nullable();
             $table->string('customer_phone');
             $table->text('customer_address');
             $table->date('lead_in');

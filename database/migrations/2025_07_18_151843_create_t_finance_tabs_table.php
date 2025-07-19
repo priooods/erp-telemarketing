@@ -16,10 +16,14 @@ return new class extends Migration
             $table->unsignedBigInteger('created_by');
             $table->unsignedBigInteger('t_marketing_tabs_id');
             $table->unsignedBigInteger('t_lead_tabs_id');
+            $table->unsignedBigInteger('m_unit_tabs_id');
+            $table->date('booking_date');
             $table->string('paid');
+            $table->text('description')->nullable();
             $table->unsignedInteger('m_status_tabs_id');
             $table->timestamps();
             $table->foreign('created_by')->references('id')->on('users')->cascadeOnDelete();
+            $table->foreign('m_unit_tabs_id')->references('id')->on('m_unit_tabs')->cascadeOnDelete();
             $table->foreign('t_marketing_tabs_id')->references('id')->on('t_marketing_tabs')->cascadeOnDelete();
             $table->foreign('t_lead_tabs_id')->references('id')->on('t_lead_tabs')->cascadeOnDelete();
             $table->foreign('m_status_tabs_id')->references('id')->on('m_status_tabs')->cascadeOnDelete();

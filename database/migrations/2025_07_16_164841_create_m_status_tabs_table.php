@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -15,6 +16,23 @@ return new class extends Migration
             $table->integerIncrements('id');
             $table->string('title');
         });
+
+        DB::table('m_status_tabs')->insert(
+            array(
+                ['title' => 'DRAFT'],
+                ['title' => 'NOT ACTIVE'],
+                ['title' => 'ACTIVE'],
+                ['title' => 'HOT'],
+                ['title' => 'TANYA-TANYA'],
+                ['title' => 'HANYA CHAT'],
+                ['title' => 'BOOKING'],
+                ['title' => 'VISIT'],
+                ['title' => 'CANCEL VISIT'],
+                ['title' => 'BI CHECKING'],
+                ['title' => 'AKAD'],
+                ['title' => 'PEMBERKASAN'],
+            )
+        );
     }
 
     /**

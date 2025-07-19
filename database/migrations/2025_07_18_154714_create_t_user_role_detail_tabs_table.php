@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('t_user_role_detail_tabs', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('m_user_role_tabs_id');
+            $table->unsignedInteger('m_user_role_tabs_id')->nullable();
             $table->unsignedBigInteger('users_id');
             $table->foreign('m_user_role_tabs_id')->references('id')->on('m_user_role_tabs')->cascadeOnDelete();
             $table->foreign('users_id')->references('id')->on('users')->cascadeOnDelete();

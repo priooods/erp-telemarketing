@@ -15,7 +15,9 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('created_by');
             $table->unsignedBigInteger('t_lead_tabs_id');
+            $table->unsignedBigInteger('t_marketing_tabs_id')->nullable();
             $table->unsignedInteger('m_status_tabs_id');
+            $table->date('visit_date')->nullable();
             $table->text('description')->nullable();
             $table->timestamps();
             $table->foreign('created_by')->references('id')->on('users')->cascadeOnDelete();
