@@ -4,7 +4,8 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\LeaderboardResource\Pages;
 use App\Filament\Resources\LeaderboardResource\RelationManagers;
-use App\Models\Leaderboard;
+use App\Filament\Widgets\PenjualanChart;
+use App\Models\TLeadTabs;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -15,7 +16,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class LeaderboardResource extends Resource
 {
-    protected static ?string $model = Leaderboard::class;
+    protected static ?string $model = TLeadTabs::class;
     protected static ?string $navigationLabel = 'Leaderboard';
     protected static ?string $breadcrumb = "Leaderboard";
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
@@ -51,6 +52,13 @@ class LeaderboardResource extends Resource
     {
         return [
             //
+        ];
+    }
+
+    public static function getWidgets(): array
+    {
+        return [
+            PenjualanChart::class,
         ];
     }
 

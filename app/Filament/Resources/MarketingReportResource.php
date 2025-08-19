@@ -8,6 +8,10 @@ use App\Models\MarketingReport;
 use App\Models\TFinanceTab;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\RepeatableEntry;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Support\Enums\Alignment;
 use Filament\Tables;
@@ -23,6 +27,38 @@ class MarketingReportResource extends Resource
     protected static ?string $navigationLabel = 'Laporan Penjualan';
     protected static ?string $breadcrumb = "Laporan Penjualan";
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist->schema([
+            Section::make('Detail Booking')
+                ->schema([
+                    TextEntry::make('created_by')->label('Dibuat Oleh')
+                        ->getStateUsing(fn($record) => $record->createdby?->name ?? '-'),
+                    TextEntry::make('t_marketing_tabs_id')->label('Marketing Closing')
+                        ->getStateUsing(fn($record) => $record->marketing?->name ?? '-'),
+                    TextEntry::make('m_unit_tabs_id')
+                        ->label('Unit')
+                        ->getStateUsing(fn($record) => $record->unit?->title ?? '-'),
+                    TextEntry::make('booking_date')
+                        ->label('Booking Date')
+                        ->date(),
+                    TextEntry::make('booking_date')
+                        ->label('Biaya Booking')->getStateUsing(fn($record) => 'Rp. ' . $record->paid),
+                ])->columns(2),
+            Section::make('Detail Leads')
+                ->schema([
+                    RepeatableEntry::make('lead.detail')
+                        ->schema([
+                            TextEntry::make('status.title')->badge(),
+                            TextEntry::make('marketing.name')->label('Marketing'),
+                            TextEntry::make('visit_date')->date()->label('Tanggal Visit'),
+                            TextEntry::make('description'),
+                        ])
+                        ->columns(3)
+                ]),
+        ]);
+    }
 
     public static function form(Form $form): Form
     {
@@ -62,7 +98,7 @@ class MarketingReportResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make()->label('Detail')->modalHeading('Detail Marketing')
+            Tables\Actions\ViewAction::make()->label('Detail')->modalHeading('Detail Perjualan')
             ])
             ->bulkActions([
             ]);

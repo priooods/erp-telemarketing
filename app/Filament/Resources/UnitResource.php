@@ -24,6 +24,12 @@ class UnitResource extends Resource
     protected static ?string $breadcrumb = "Unit";
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        if (auth()->user()->role_detail->m_user_role_tabs_id == 1) return true;
+        else return false;
+    }
+
     public static function form(Form $form): Form
     {
         return $form

@@ -17,6 +17,11 @@ class TFinanceTab extends Model
         'description',
     ];
 
+    public function createdby()
+    {
+        return $this->hasOne(User::class, 'id', 'created_by');
+    }
+
     public function lead()
     {
         return $this->hasOne(TLeadTabs::class, 'id', 't_lead_tabs_id');

@@ -20,6 +20,10 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\RepeatableEntry;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Support\Enums\Alignment;
@@ -38,6 +42,38 @@ class LeadsResource extends Resource
     protected static ?string $navigationLabel = 'Leads';
     protected static ?string $breadcrumb = "Leads";
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist->schema([
+            Section::make('Detail Booking')
+                ->schema([
+                    TextEntry::make('created_by')->label('Dibuat Oleh')
+                        ->getStateUsing(fn($record) => $record->createdby?->name ?? '-'),
+                    TextEntry::make('t_marketing_tabs_id')->label('Marketing Closing')
+                        ->getStateUsing(fn($record) => $record->marketing?->name ?? '-'),
+                    TextEntry::make('m_unit_tabs_id')
+                        ->label('Unit')
+                        ->getStateUsing(fn($record) => $record->unit?->title ?? '-'),
+                    TextEntry::make('booking_date')
+                        ->label('Booking Date')
+                        ->date(),
+                    TextEntry::make('booking_date')
+                        ->label('Biaya Booking')->getStateUsing(fn($record) => 'Rp. ' . $record->paid),
+                ])->columns(2),
+            Section::make('Detail Leads')
+                ->schema([
+                    RepeatableEntry::make('lead.detail')
+                        ->schema([
+                            TextEntry::make('status.title')->badge(),
+                            TextEntry::make('marketing.name')->label('Marketing'),
+                            TextEntry::make('visit_date')->date()->label('Tanggal Visit'),
+                            TextEntry::make('description'),
+                        ])
+                        ->columns(3)
+                ]),
+        ]);
+    }
 
     public static function form(Form $form): Form
     {
@@ -204,20 +240,8 @@ class LeadsResource extends Resource
                         ->modalHeading('Tambah Informasi Booking')
                         ->modalSubmitActionLabel('Simpan Data')
                         ->modalCancelAction(fn(StaticAction $action) => $action->label('Batal')),
-                    Action::make('log')
-                        ->label('History')
-                        ->action(function ($record) {
-                            $record->update([
-                                'm_status_tabs_id' => 2,
-                            ]);
-                        })
-                        ->icon('heroicon-o-check')
-                        ->color('info')
-                        ->requiresConfirmation()
-                        ->modalHeading('Non Aktifkan Akun')
-                        ->modalDescription('Apakah anda ingin menon-aktifkan Akun ?')
-                        ->modalSubmitActionLabel('Non Aktifkan')
-                        ->modalCancelAction(fn(StaticAction $action) => $action->label('Batal')),
+
+                Tables\Actions\ViewAction::make()->label('Detail')->modalHeading('Detail Perjualan'),
                     Tables\Actions\EditAction::make()->visible(
                     fn($record) =>
                         (auth()->user()->role_detail->role->id === 1 || auth()->user()->role_detail->role->id === 2) && TLeadTabs::where('id', $record->id)->doesnthave('booking')->first()

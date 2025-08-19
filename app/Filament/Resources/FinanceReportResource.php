@@ -3,9 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\FinanceReportResource\Pages;
-use App\Filament\Resources\FinanceReportResource\RelationManagers;
-use App\Models\FinanceReport;
-use Filament\Forms;
+use App\Models\TLeadTabs;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -13,7 +11,7 @@ use Filament\Tables\Table;
 
 class FinanceReportResource extends Resource
 {
-    protected static ?string $model = FinanceReport::class;
+    protected static ?string $model = TLeadTabs::class;
     protected static ?string $navigationLabel = 'Report';
     protected static ?string $breadcrumb = "Report";
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
@@ -38,11 +36,7 @@ class FinanceReportResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+            ->bulkActions([]);
     }
 
     public static function getRelations(): array
