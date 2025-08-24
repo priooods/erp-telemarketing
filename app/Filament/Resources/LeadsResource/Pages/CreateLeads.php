@@ -18,4 +18,9 @@ class CreateLeads extends CreateRecord
         $data['created_by'] = auth()->user()->id;
         return $data;
     }
+
+    protected function getRedirectUrl(): string
+    {
+        return static::getResource()::getUrl('create');
+    }
 }

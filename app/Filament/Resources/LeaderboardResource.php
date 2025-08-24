@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\LeaderboardResource\Pages;
 use App\Filament\Resources\LeaderboardResource\RelationManagers;
+use App\Filament\Widgets\LeadsChart;
 use App\Filament\Widgets\PenjualanChart;
 use App\Models\TLeadTabs;
 use Filament\Forms;
@@ -59,6 +60,7 @@ class LeaderboardResource extends Resource
     {
         return [
             PenjualanChart::class,
+            LeadsChart::class
         ];
     }
 

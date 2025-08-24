@@ -15,7 +15,7 @@ class ListLeads extends ListRecords
     {
         return [
             Actions\CreateAction::make()->label('Tambah Leads')
-                ->visible(auth()->user()->role_detail->role->id === 1 || auth()->user()->role_detail->role->id === 2),
+                ->visible(auth()->user()->role_detail->role->id == 1 || auth()->user()->role_detail->role->id == 2),
         ];
     }
 }

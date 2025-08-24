@@ -3,8 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\LeadsResource\Pages;
-use App\Filament\Resources\LeadsResource\RelationManagers;
-use App\Models\Leads;
 use App\Models\MProjectTab;
 use App\Models\MStatusTabs;
 use App\Models\MUnitTab;
@@ -13,7 +11,6 @@ use App\Models\TLeadDetailTabs;
 use App\Models\TLeadTabs;
 use App\Models\TMarketingTab;
 use Filament\Actions\StaticAction;
-use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
@@ -32,8 +29,6 @@ use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class LeadsResource extends Resource
 {
@@ -46,31 +41,42 @@ class LeadsResource extends Resource
     public static function infolist(Infolist $infolist): Infolist
     {
         return $infolist->schema([
+            Section::make('Customer')
+                ->schema([
+                    TextEntry::make('customer_nama')->label('Nama Customer'),
+                    TextEntry::make('customer_phone')->label('No Telp'),
+                    TextEntry::make('customer_address')->label('Alamat'),
+                    TextEntry::make('lead_in')->label('Awal Chat')->date(),
+                    TextEntry::make('m_status_tabs_id')->label('Status Leads')->getStateUsing(fn($record) => $record->status ? $record->status->title : '-'),
+                ])->columns(2),
             Section::make('Detail Booking')
+                ->visible(fn($record) => $record->booking)
                 ->schema([
                     TextEntry::make('created_by')->label('Dibuat Oleh')
-                        ->getStateUsing(fn($record) => $record->createdby?->name ?? '-'),
+                    ->getStateUsing(fn($record) => $record->booking->createdby?->name ?? '-'),
                     TextEntry::make('t_marketing_tabs_id')->label('Marketing Closing')
-                        ->getStateUsing(fn($record) => $record->marketing?->name ?? '-'),
+                    ->getStateUsing(fn($record) => $record->booking->marketing?->name ?? '-'),
                     TextEntry::make('m_unit_tabs_id')
                         ->label('Unit')
-                        ->getStateUsing(fn($record) => $record->unit?->title ?? '-'),
+                    ->getStateUsing(fn($record) => $record->booking->unit?->title ?? '-'),
                     TextEntry::make('booking_date')
+                    ->getStateUsing(fn($record) => $record->booking->booking_date ?? '-')
                         ->label('Booking Date')
                         ->date(),
                     TextEntry::make('booking_date')
-                        ->label('Biaya Booking')->getStateUsing(fn($record) => 'Rp. ' . $record->paid),
+                    ->label('Biaya Booking')->getStateUsing(fn($record) => 'Rp. ' . $record->booking->paid),
                 ])->columns(2),
             Section::make('Detail Leads')
+                ->visible(fn($record) => count($record->detail) > 0)
                 ->schema([
-                    RepeatableEntry::make('lead.detail')
-                        ->schema([
-                            TextEntry::make('status.title')->badge(),
-                            TextEntry::make('marketing.name')->label('Marketing'),
-                            TextEntry::make('visit_date')->date()->label('Tanggal Visit'),
-                            TextEntry::make('description'),
-                        ])
-                        ->columns(3)
+                RepeatableEntry::make('detail')
+                    ->schema([
+                        TextEntry::make('status.title')->badge(),
+                        TextEntry::make('marketing.name')->label('Marketing'),
+                        TextEntry::make('visit_date')->date()->label('Tanggal Visit'),
+                        TextEntry::make('description')->label('Catatan'),
+                    ])
+                    ->columns(3)
                 ]),
         ]);
     }
@@ -116,10 +122,10 @@ class LeadsResource extends Resource
             ->columns([
                 TextColumn::make('customer_nama')->label('Nama'),
                 TextColumn::make('customer_phone')->label('No Telp/Wa'),
-                TextColumn::make('customer_address')->label('Alamat'),
+            TextColumn::make('customer_address')->label('Alamat')->wrap(),
                 TextColumn::make('created_by')->label('Dibuat')->alignment(Alignment::Center)->badge()->getStateUsing(fn($record) => $record->user?->name ?? '-'),
                 TextColumn::make('lead_in')->label('Awal Chat')->date()->alignment(Alignment::Center),
-                TextColumn::make('m_status_tabs_id')->badge()->label('Status')->alignment(Alignment::Center)
+            TextColumn::make('m_status_tabs_id')->badge()->label('Status Chat')->alignment(Alignment::Center)
                     ->getStateUsing(fn($record) => $record->status ? $record->status->title : '-')
                     ->color(fn(string $state): string => match ($state) {
                         'TANYA-TANYA' => 'gray',
@@ -191,6 +197,14 @@ class LeadsResource extends Resource
                     Action::make('booking')
                         ->label('Booking')
                         ->action(function (array $data, $record) {
+                    TLeadDetailTabs::create([
+                        'created_by' => auth()->user()->id,
+                        't_lead_tabs_id' => $record->id,
+                        't_marketing_tabs_id' => $data['t_marketing_tabs_id'],
+                        'm_status_tabs_id' => 7,
+                        'visit_date' => $data['booking_date'],
+                        'description' => $data['description'],
+                    ]);
                             TFinanceTab::create([
                                 'created_by' => auth()->user()->id,
                                 't_lead_tabs_id' => $record->id,
@@ -229,7 +243,7 @@ class LeadsResource extends Resource
                                         ->where('title', 'like', "%{$search}%")->limit(5)->pluck('title', 'id')->toArray())
                                     ->getOptionLabelUsing(fn($value): ?string => MUnitTab::find($value)?->title)
                                     ->required(),
-                                TextInput::make('paid')->label('Biaya Booking')->required(),
+                        TextInput::make('paid')->label('Biaya Booking')->numeric()->required(),
                                 DatePicker::make('booking_date')->label('Tgl Booking')->required(),
                                 Textarea::make('description')->label('Catatan')->placeholder('Masukan Catatan'),
                             ])->columns(2)
@@ -239,8 +253,7 @@ class LeadsResource extends Resource
                         ->color('success')
                         ->modalHeading('Tambah Informasi Booking')
                         ->modalSubmitActionLabel('Simpan Data')
-                        ->modalCancelAction(fn(StaticAction $action) => $action->label('Batal')),
-
+                    ->modalCancelAction(fn(StaticAction $action) => $action->label('Batal')),
                 Tables\Actions\ViewAction::make()->label('Detail')->modalHeading('Detail Perjualan'),
                     Tables\Actions\EditAction::make()->visible(
                     fn($record) =>

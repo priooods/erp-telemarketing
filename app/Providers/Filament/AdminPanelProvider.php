@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Pages\LoginCustom;
+use App\Filament\Widgets\LeadsChart;
 use App\Filament\Widgets\PenjualanChart;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -27,7 +28,7 @@ class AdminPanelProvider extends PanelProvider
         return $panel
             ->default()
             ->id('admin')
-            ->path('admin')
+            ->path('/')
             ->login(LoginCustom::class)
             ->colors([
                 'danger' => Color::Rose,
@@ -47,7 +48,8 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 Widgets\AccountWidget::class,
                 Widgets\FilamentInfoWidget::class,
-            PenjualanChart::class
+            PenjualanChart::class,
+            LeadsChart::class
             ])
             ->middleware([
                 EncryptCookies::class,
