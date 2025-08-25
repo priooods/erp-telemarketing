@@ -73,11 +73,16 @@ class MarketingReportResource extends Resource
         return $table
             ->query(
             TFinanceTab::orderBy('id', 'desc')
-            )
+            )->recordUrl(null)
             ->emptyStateHeading('laporan Penjualan Kosong')
             ->emptyStateDescription('Tidak ada informasi laporan Penjualan')
             ->columns([
                 TextColumn::make('t_marketing_tabs_id')->label('Marketing')
+                ->searchable(query: function (Builder $query, string $search): Builder {
+                    return $query->with('marketing')->whereHas('marketing', function ($a) use ($search) {
+                        $a->where('name', 'like', "%{$search}%");
+                    });
+                })
                     ->getStateUsing(fn($record) => $record->marketing?->name ?? '-')
                     ->description(fn(TFinanceTab $record): string => 'SPV : ' . $record->marketing?->atasan?->name),
                 TextColumn::make('m_unit_tabs_id')->label('Unit')

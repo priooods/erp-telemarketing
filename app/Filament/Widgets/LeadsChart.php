@@ -6,12 +6,12 @@ use Filament\Widgets\ChartWidget;
 
 class LeadsChart extends ChartWidget
 {
-    protected static ?string $heading = 'Leads Chart';
+    protected static ?string $heading = 'Booking Chart';
     protected static bool $isLazy = true;
 
     public function getDescription(): ?string
     {
-        return 'Informasi pencapaian Lead';
+        return 'Informasi Customer yang Booking';
     }
 
     protected function getOptions(): array

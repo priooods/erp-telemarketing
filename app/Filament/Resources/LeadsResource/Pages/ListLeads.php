@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\LeadsResource\Pages;
 
 use App\Filament\Resources\LeadsResource;
+use App\Filament\Widgets\StatsOverview;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 
@@ -11,6 +12,12 @@ class ListLeads extends ListRecords
     protected static string $resource = LeadsResource::class;
     protected static ?string $title = 'Leads';
     protected ?string $heading = 'Data Leads';
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            StatsOverview::class,
+        ];
+    }
     protected function getHeaderActions(): array
     {
         return [
